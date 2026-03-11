@@ -22,7 +22,7 @@ DQN trains a network to predict Q-values based on previously seen transitions sa
 
 | Environment | Random policy | Trained policy | Training details |
 | ----------- | ------------- | -------------- | ---------------- |
-| Pong | ![](assets/DQN_ALEPong-v5_random.gif) | Still running, maximum evaluation reward so far: 12 | 10 mio frames | 
+| Pong | ![](assets/DQN_ALEPong-v5_random.gif) | Random action during evaluation with 0% vs 5% probability. Scores: 5:21 vs 8:21<br>![](assets/DQN_ALEPong-v5_0epochs_Wed_Mar_11_07:30:02_2026_eps0_0.gif) ![](assets/DQN_ALEPong-v5_0epochs_Wed_Mar_11_07:30:02_2026_eps0_05.gif) | 10 mio frames | 
 
 
 ## MCTS [Notebook](notebooks/MCTS-reproduction-of-MCTX-visualization-demo.ipynb)
