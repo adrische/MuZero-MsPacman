@@ -5,10 +5,12 @@
 
 ## Contents
 
-1. [Dyna-Q](#dyna-q)
-2. [Deep-Q-Network (DQN)](#dqn)
-3. [Monte-Carlo Tree Search (MCTS)](#mcts)
+1. [Dyna-Q](#dyna-q-notebook)
+2. [Deep-Q-Network (DQN)](#dqn-notebook)
+3. [Monte-Carlo Tree Search (MCTS)](#mcts-notebook)
 4. [MuZero](#muzero)
+5. [References](#references)
+
 
 
 ## Dyna-Q [Notebook](notebooks/dyna-q.ipynb) 
@@ -34,11 +36,29 @@ Monte-Carlo tree search is a seach algorithm that selects at each step the most 
 
 ## MuZero
 
-Work in progress
+Work in progress: As a first step, I'm implementing changes to the DQN code only based on the MuZero paper, with the goal of having a scaled-down version of MuZero that can demonstrate improvements to DQN on Ms Pacman. I won't be looking at the published pseudocode for now. Afterwards, I'll review my implementation against the pseudocode.
 
 
 
+## References
 
+[Reinforcement Learning: An Introduction (Sutton & Barto)](http://incompleteideas.net/book/the-book-2nd.html)
+
+[Playing Atari with Deep Reinforcement Learning (DQN Arxiv 2013)](https://arxiv.org/abs/1312.5602)
+
+[Human-level control through deep reinforcement learning (DQN Nature 2015)](https://www.nature.com/articles/nature14236)
+
+[Mastering the game of Go with deep neural networks and tree search (AlphaGo)](https://storage.googleapis.com/deepmind-media/alphago/AlphaGoNaturePaper.pdf)
+
+[Mastering the Game of Go without Human Knowledge (AlphaGo Zero)](https://discovery.ucl.ac.uk/id/eprint/10045895/1/agz_unformatted_nature.pdf)
+
+[Mastering Chess and Shogi by Self-Play with a General Reinforcement Learning Algorithm (AlphaZero)](https://arxiv.org/pdf/1712.01815)
+
+[Mastering Atari, Go, Chess and Shogi by Planning with a Learned Model (MuZero)](https://arxiv.org/abs/1911.08265)
+
+[MuZero Pseudocode](https://arxiv.org/src/1911.08265v2/anc/pseudocode.py)
+
+[Monte Carlo tree search in JAX (MCTX)](https://github.com/google-deepmind/mctx)
 
 
 
