@@ -1,11 +1,5 @@
 import torch
 import pygraphviz as pgv
-import jax # add noise to break ties in argmax, same as MCTX # TODO make dependency on JAX optional
-# Seed handling: Copied from the visualization demo, and relevant lines of code in MCTX, for example:
-# https://github.com/google-deepmind/mctx/blob/f8cd07bcc5d7ff736ae4c1e4217d2001508f8353/mctx/_src/action_selection.py#L85
-# https://github.com/google-deepmind/mctx/blob/f8cd07bcc5d7ff736ae4c1e4217d2001508f8353/mctx/_src/policies.py#L80
-# https://github.com/google-deepmind/mctx/blob/f8cd07bcc5d7ff736ae4c1e4217d2001508f8353/mctx/_src/policies.py#L103
-# This is however not yet correctly reproduced in this code.
 
 _c1 = 1.25
 _c2 = 19652
@@ -45,7 +39,7 @@ class MCTSNode:
     def is_root_node(self):
         return self.parent is None
     
-    def selection(self, transform="qtransform_by_parent_and_siblings", rng_key=jax.random.PRNGKey(42)):
+    def selection(self, transform="qtransform_by_parent_and_siblings"):
         if transform == "qtransform_by_parent_and_siblings":
             # Implementation in line with MuZero / default parameters of MCTX muzero_policy
             # https://github.com/google-deepmind/mctx/blob/f8cd07bcc5d7ff736ae4c1e4217d2001508f8353/mctx/_src/qtransforms.py#L80
@@ -62,7 +56,7 @@ class MCTSNode:
             Q_scaled = (self.Q - transform[0]) / (transform[1] - transform[0])
         
         pucb = Q_scaled + self.P * torch.sqrt(self.N.sum()) / (1 + self.N) * (_c1 + torch.log( (self.N.sum() + _c2 + 1)/_c2 ))
-        noise = 1e-7 * torch.tensor(jax.random.uniform(rng_key, shape=pucb.shape))
+        noise = 1e-7 * torch.rand_like(pucb)
         action = torch.argmax(pucb + noise)
         next_node = self.S[action.item()] # could be None
         reward = self.R[action.item()] # could also be None
@@ -79,8 +73,7 @@ class MCTSTree:
                  dynamics_function = lambda s, a: (torch.tensor(0.0), s),
                  prediction_function = lambda s: (None, torch.tensor(0.0)),
                  gamma=0.997,
-                 n_actions=18,
-                 rng_key=jax.random.PRNGKey(42)):
+                 n_actions=18):
         """Naive implementation of Monte-Carlo Tree Search with MuZero action selection.
         
         Usage:
@@ -109,7 +102,6 @@ class MCTSTree:
         self.gamma = gamma
         self.n_actions = n_actions
         self.reset_trace()
-        self.rng_key = rng_key
         self.root_node = root_node if root_node is not None else MCTSNode(n_actions=self.n_actions, identifier="root") # TODO invalid action masking at root node
         self.nodes = [self.root_node]
 
@@ -121,23 +113,11 @@ class MCTSTree:
         current_node = self.root_node
         isim = 0
         
-        # Seeds
-        rng_key, dirichlet_rng_key, search_rng_key = jax.random.split(self.rng_key, 3)
-        search_rng_key, simulate_key, expand_key = jax.random.split(search_rng_key, 3)
-        
-        # Seeds
-        batch_size = 2 # hard-coded to be in line with MCTX visualization demo
-        simulate_keys = jax.random.split(simulate_key, batch_size)
-        simulate_key = simulate_keys[0]
-
         # TODO add dirichlet noise _add_dirichlet_noise(dirichlet_rng_key, ... # muzero_policy
 
         while isim < self.n_simulations:
-            # Seeds
-            simulate_key, action_selection_key = jax.random.split(simulate_key)
-            
             # Traverse one step. Output is an existing next node, or None, in which case to create and append a new leaf node at that position
-            a, next_node, r = current_node.selection(transform="qtransform_by_parent_and_siblings", rng_key=action_selection_key)
+            a, next_node, r = current_node.selection(transform="qtransform_by_parent_and_siblings")
             
             if next_node is None:
                 # Create and attach new node
@@ -158,13 +138,18 @@ class MCTSTree:
                 self.reset_trace()
                 current_node = self.root_node
 
-                # Seeds: step the rng iterator corresponding to MCTX search.search (iterating at the root)
-                search_rng_key, simulate_key, expand_key = jax.random.split(search_rng_key, 3)
-                simulate_keys = jax.random.split(simulate_key, batch_size)
-                simulate_key = simulate_keys[0]
             else:
                 self.trace.append((a, current_node, r))
                 current_node = next_node
+        
+        # When there were no simulations, the improved policy is the initial policy at the root node
+        if self.n_simulations == 0:
+            nu = self.root_node.v         
+            pi = self.root_node.P
+        else:
+            nu = self.root_node.v # improved value
+            pi = self.root_node.N/self.root_node.N.sum() # improved policy
+        return nu, pi
 
     def backup(self):
         assert len(self.trace) > 0
@@ -186,10 +171,10 @@ class MCTSTree:
         # An action a_{t+1} is sampled from the search policy pi_t, which is proportional
         # to the visit count for each action from the root node.
         # TODO only sample from restricted set of allowed actions at root
-        # rng_key, dirichlet_rng_key, search_rng_key = jax.random.split(self.rng_key, 3)
-        # action = jax.random.categorical(rng_key, action_logits)
-        return torch.multinomial(self.root_node.N/self.root_node.N.sum(), num_samples=num_samples, replacement=True)
-    
+        # When there were no simulations, sample according to the initial policy at the root node (the only node)
+        sample_probs = self.root_node.P if self.n_simulations == 0 else self.root_node.N/self.root_node.N.sum()
+        return torch.multinomial(sample_probs, num_samples=num_samples, replacement=True)
+
 
 def draw_tree(tree=MCTSTree(), out_file="file.png"):
     graph = pgv.AGraph(directed=True, diredgeconstraints=True)

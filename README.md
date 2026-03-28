@@ -42,6 +42,8 @@ Work in progress: As a first step, I'm implementing changes to the DQN code only
 
 ## References
 
+### Main
+
 [Reinforcement Learning: An Introduction (Sutton & Barto)](http://incompleteideas.net/book/the-book-2nd.html)
 
 [Playing Atari with Deep Reinforcement Learning (DQN Arxiv 2013)](https://arxiv.org/abs/1312.5602)
@@ -60,6 +62,10 @@ Work in progress: As a first step, I'm implementing changes to the DQN code only
 
 [Monte Carlo tree search in JAX (MCTX)](https://github.com/google-deepmind/mctx)
 
+
+### Related
+
+[Deep Reinforcement Learning and the Deadly Triad](https://arxiv.org/pdf/1812.02648) (function approximation, off-policy learning, and bootstrapping)
 
 
 
