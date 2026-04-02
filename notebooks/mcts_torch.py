@@ -144,7 +144,7 @@ class MCTSTree:
         
         # When there were no simulations, the improved policy is the initial policy at the root node
         if self.n_simulations == 0:
-            nu = self.root_node.v         
+            nu = self.root_node.v
             pi = self.root_node.P
         else:
             nu = self.root_node.v # improved value
