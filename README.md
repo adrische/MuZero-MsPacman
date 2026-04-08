@@ -65,14 +65,14 @@ Some features from the paper that currently are / are not implemented:
 - Value targets and rewards are are scaled down according to the transformation h (page 14 of the [MuZero paper](https://arxiv.org/abs/1911.08265)
 - Value targets and rewards are discretized and given as weighted average over an integer range, with CrossEntropy loss function
 - n as in n-step bootstrap and K as in number of rollouts are variable, but the gradients are not appropriately scaled
-- run time is a concern... it takes about 1 hour on CPU to get signs of life, with minimal settings (e.g., replay buffer size in the run above was 200, which is shorter than one episode of a trained policy (time limit of 500), but is enough to learn terminations from an untrained policy)
-- truncations are not correctly treated (this may not currently be relevant if the replay buffer is so small, as it will never contain any truncated episodes)
-- use of the number of allowed actions of the environment, no special treatment of allowed actions vs a potentially larger full action set
-- terminal states are treated as absorbing states by my own interpretation: rewards are set to 0, as is the value function. The policy target for such states is currently set to the uniform policy (probability of 1/number of actions for each action), and the selected action used in the rollout beyond terminal states is a uniformly random sampled action.
+- Run time is a concern... it takes about 1 hour on CPU to get signs of life, with minimal settings (e.g., replay buffer size in the run above was 200, which is shorter than one episode of a trained policy (time limit of 500), but is enough to have lots of terminations from an untrained policy)
+- Truncations are not correctly treated (this may not currently be relevant if the replay buffer is so small, as it will not contain any truncated episodes)
+- Use of the number of allowed actions of the environment, no special treatment of allowed actions vs a potentially larger full action set
+- Terminal states are treated as absorbing states by my own interpretation: rewards are set to 0, as is the value function. The policy target for such states is currently set to the uniform policy (probability of 1/number of actions for each action), and the selected action used in the rollout beyond terminal states is a uniformly random sampled action.
 - MCTS produces an improved value estimate at the root function which is used as in the value targets. How this improved value exactly is derived is not described in the paper. I aligned to the MCTX implementation. It works similar to the backup of the Q-values in the search tree, described on page 12 of the MuZero paper.
-- no scaling of hidden state to [0, 1].
-- no temperature and no Dirichlet exploration noise in the sampling from the MCTS root node.
-- currently only runs on CPU, specifically with MCTS being single-threaded (slow..)
+- No scaling of the hidden state to [0, 1].
+- No temperature and no Dirichlet exploration noise in the sampling from the MCTS root node.
+- Currently only runs on CPU, specifically with MCTS being single-threaded (slow..)
 
 
 ## References
