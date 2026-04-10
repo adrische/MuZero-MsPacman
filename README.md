@@ -1,6 +1,7 @@
 # Step-by-step Reimplementation Attempt of MuZero for Ms Pacman
 
 > Work in progress. Feedback welcome.
+> I gave a brief (5 min) interactive presentation about this implementation at an AI meetup in Zurich. The slide I used to motivate the backgroud is [here](presentation.pdf).
 
 
 ## Contents
